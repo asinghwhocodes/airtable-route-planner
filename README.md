@@ -83,11 +83,9 @@ Airtable will provide you with a **Base ID** and **Block ID** in format like blo
 
 Add the remote configuration using the IDs you just received:
 
-```bash
-block add-remote YOUR_BASE_ID/YOUR_BLOCK_ID development
-```
+1. **Open "remote.json" file from folder ".block"** 
+2. **Add your baseId and BlockId there**
 
-Replace `YOUR_BASE_ID` and `YOUR_BLOCK_ID` with the actual IDs from the previous step.
 
 ### Step 6: Run the Extension in Development Mode
 
