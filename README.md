@@ -198,6 +198,40 @@ When you're ready to deploy:
 
 This will make your extension available to install in any Airtable base.
 
+## 🚀 Releasing Your Extension
+
+While you're working on code, you don't want to show it off until it's ready. But at some point, it will be ready for the rest of your base collaborators to see, and then it's time to release it!
+
+### When You're Ready to Release
+
+1. **Build and upload your extension**:
+   ```bash
+   block release
+   ```
+   This will build your extension's code and upload it to Airtable's servers.
+
+2. **Refresh your Airtable base** in the browser
+3. **Your extension will still be there** - even if you turn off the development server!
+4. **Invite collaborators** to your base and they should be able to see your extension
+
+### Benefits of Releasing
+
+- **Collaborators can use it**: Anyone with access to your base can use the extension
+- **No development server needed**: The extension runs on Airtable's servers
+- **Stable version**: Changes are only made when you explicitly release
+- **Production ready**: Perfect for sharing with your team
+
+### Making Updates
+
+After making changes to your code:
+
+1. **Test locally** with `block run --remote development`
+2. **When satisfied**, release the updates:
+   ```bash
+   block release
+   ```
+3. **Refresh the page** to see your changes
+
 ## ⚙️ Configuration
 
 Access settings via the settings button in the extension:
