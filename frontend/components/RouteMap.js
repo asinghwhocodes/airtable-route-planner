@@ -129,6 +129,9 @@ const RouteMap = ({ routeData, addresses }) => {
 
                 // Add numbered markers for each address (showing original selection order)
                 addresses.forEach((address, index) => {
+                    // Use order from address, or fallback to index + 1
+                    const orderNumber = address.order || (index + 1);
+                    
                     // Create custom numbered marker showing original selection order
                     const markerHtml = `
                         <div style="
@@ -145,7 +148,7 @@ const RouteMap = ({ routeData, addresses }) => {
                             border: 2px solid white;
                             box-shadow: 0 2px 4px rgba(0,0,0,0.3);
                         ">
-                            ${address.order}
+                            ${orderNumber}
                         </div>
                     `;
                     
@@ -159,7 +162,7 @@ const RouteMap = ({ routeData, addresses }) => {
                     const marker = L.marker([address.lat, address.lon], { icon: customIcon })
                         .addTo(map)
                         .bindPopup(`
-                            <strong>Selection: ${address.order}</strong><br>
+                            <strong>Selection: ${orderNumber}</strong><br>
                             <strong>${address.originalAddress}</strong><br>
                             ${address.display_name}
                         `);

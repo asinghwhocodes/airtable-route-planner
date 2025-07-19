@@ -154,6 +154,18 @@ function RoutePlannerAppAirtable() {
     }
   }, [table, globalConfig, selectedLocationField]);
 
+  // Sync order information from selectedAddresses to geocodedAddresses
+  useEffect(() => {
+    if (selectedAddresses.length > 0 && geocodedAddresses.length > 0) {
+      setGeocodedAddresses((prev) => {
+        return prev.map((geocodedAddr) => {
+          const selectedAddr = selectedAddresses.find((selected) => selected.recordId === geocodedAddr.recordId);
+          return selectedAddr ? { ...geocodedAddr, order: selectedAddr.order } : geocodedAddr;
+        });
+      });
+    }
+  }, [selectedAddresses, geocodedAddresses.length]);
+
   // Save location field selection to global config for the current table
   const saveLocationFieldToConfig = async (field) => {
     try {
@@ -381,8 +393,10 @@ function RoutePlannerAppAirtable() {
           setGeocodedAddresses((prev) => {
             // Remove any existing geocoded address for this record
             const filtered = prev.filter((addr) => addr.recordId !== recordId);
-            // Add the new geocoded address (order will be synced by useEffect)
-            return [...filtered, { ...geocoded[0], recordId }];
+            // Add the new geocoded address with order information
+            const selectedAddr = selectedAddresses.find(addr => addr.recordId === recordId);
+            const order = selectedAddr ? selectedAddr.order : (prev.length + 1);
+            return [...filtered, { ...geocoded[0], recordId, order }];
           });
           // Clear any previous error for this address
           setGeocodingErrors((prev) => {
