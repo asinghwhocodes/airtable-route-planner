@@ -18,7 +18,7 @@ const decodePolyline = (encoded) => {
     }
 };
 
-const RouteMap = ({ routeData, addresses }) => {
+const RouteMap = ({ routeData, addresses, selectedAddresses }) => {
     const mapRef = useRef(null);
     const mapInstanceRef = useRef(null);
     const markersRef = useRef([]);
@@ -129,8 +129,9 @@ const RouteMap = ({ routeData, addresses }) => {
 
                 // Add numbered markers for each address (showing original selection order)
                 addresses.forEach((address, index) => {
-                    // Use order from address, or fallback to index + 1
-                    const orderNumber = address.order || (index + 1);
+                    // Get order from selectedAddresses if available, otherwise use index + 1
+                    const selectedAddr = selectedAddresses ? selectedAddresses.find(selected => selected.recordId === address.recordId) : null;
+                    const orderNumber = selectedAddr ? selectedAddr.order : (index + 1);
                     
                     // Create custom numbered marker showing original selection order
                     const markerHtml = `
@@ -158,7 +159,7 @@ const RouteMap = ({ routeData, addresses }) => {
                         iconSize: [24, 24],
                         iconAnchor: [12, 12]
                     });
-                    
+
                     const marker = L.marker([address.lat, address.lon], { icon: customIcon })
                         .addTo(map)
                         .bindPopup(`

@@ -154,18 +154,6 @@ function RoutePlannerAppAirtable() {
     }
   }, [table, globalConfig, selectedLocationField]);
 
-  // Sync order information from selectedAddresses to geocodedAddresses
-  useEffect(() => {
-    if (selectedAddresses.length > 0 && geocodedAddresses.length > 0) {
-      setGeocodedAddresses((prev) => {
-        return prev.map((geocodedAddr) => {
-          const selectedAddr = selectedAddresses.find((selected) => selected.recordId === geocodedAddr.recordId);
-          return selectedAddr ? { ...geocodedAddr, order: selectedAddr.order } : geocodedAddr;
-        });
-      });
-    }
-  }, [selectedAddresses, geocodedAddresses.length]);
-
   // Save location field selection to global config for the current table
   const saveLocationFieldToConfig = async (field) => {
     try {
@@ -393,10 +381,9 @@ function RoutePlannerAppAirtable() {
           setGeocodedAddresses((prev) => {
             // Remove any existing geocoded address for this record
             const filtered = prev.filter((addr) => addr.recordId !== recordId);
-            // Add the new geocoded address with order information
-            const selectedAddr = selectedAddresses.find(addr => addr.recordId === recordId);
-            const order = selectedAddr ? selectedAddr.order : (prev.length + 1);
-            return [...filtered, { ...geocoded[0], recordId, order }];
+            // Add the new geocoded address with the correct order
+            const newOrder = selectedAddresses.length + 1; // This will be the order for the new address
+            return [...filtered, { ...geocoded[0], recordId, order: newOrder }];
           });
           // Clear any previous error for this address
           setGeocodingErrors((prev) => {
@@ -807,6 +794,9 @@ function RoutePlannerAppAirtable() {
         <Box display="flex" alignItems="flex-start" gap={2} marginBottom={3} padding={3} backgroundColor="#fee2e2" borderRadius="8px" border="1px solid #fca5a5">
           <Icon name="warning" size={16} fill="#dc2626" />
           <Box>
+            {/* <Text fontSize="14px" fontWeight={600} textColor="#dc2626" marginBottom={1}>
+              Route Calculation Error
+            </Text> */}
             <Text fontSize="13px" textColor="#dc2626" lineHeight="1.4">
               {error}
             </Text>
@@ -902,7 +892,7 @@ function RoutePlannerAppAirtable() {
         )}
       </Box>
 
-      {geocodedAddresses.length > 0 && <RouteMap routeData={routeResult} addresses={geocodedAddresses} />}
+      {geocodedAddresses.length > 0 && <RouteMap routeData={routeResult} addresses={geocodedAddresses} selectedAddresses={selectedAddresses} />}
 
       {routeResult && (
         <Box marginTop={3} padding={2} backgroundColor="lightGray1" borderRadius="8px" border="1px solid #e5e7eb">
