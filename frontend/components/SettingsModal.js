@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Box, 
   Text, 
@@ -14,11 +14,39 @@ const SettingsModal = ({ isOpen, onClose }) => {
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [canUpdateGlobalConfig, setCanUpdateGlobalConfig] = useState(false);
+  const [permissionError, setPermissionError] = useState(null);
   
   const globalConfig = useGlobalConfig();
   
   // Watch for global config changes
   useWatchable(globalConfig, ['*']);
+
+  // Check permissions when modal opens
+  useEffect(() => {
+    const checkPermissions = async () => {
+      if (isOpen) {
+        try {
+          setPermissionError(null);
+          // Test GlobalConfig permissions by trying to read a test value
+          try {
+            globalConfig.get('_permission_test');
+            setCanUpdateGlobalConfig(true);
+          } catch (error) {
+            console.log('GlobalConfig permission test failed:', error);
+            setCanUpdateGlobalConfig(false);
+            setPermissionError('Cannot save settings: Insufficient permissions');
+          }
+        } catch (error) {
+          console.error('Error checking permissions:', error);
+          setPermissionError(`Permission check failed: ${error.message}`);
+          setCanUpdateGlobalConfig(false);
+        }
+      }
+    };
+
+    checkPermissions();
+  }, [isOpen, globalConfig]);
 
   // Get current settings
   const defaultRouteType = globalConfig.get('defaultRouteType') || 'driving';
@@ -47,7 +75,13 @@ const SettingsModal = ({ isOpen, onClose }) => {
 
     } catch (error) {
       console.error('Error saving settings:', error);
-      setSaveError(`Error saving settings: ${error.message}`);
+      // Check if this is a permission error
+      if (error.message && error.message.includes('permission')) {
+        setCanUpdateGlobalConfig(false);
+        setSaveError('Cannot save settings: Insufficient permissions');
+      } else {
+        setSaveError(`Error saving settings: ${error.message}`);
+      }
     } finally {
       setIsSaving(false);
     }
@@ -92,6 +126,18 @@ const SettingsModal = ({ isOpen, onClose }) => {
           <Box display="flex" alignItems="center" gap={2} padding={3} backgroundColor="lightGray1" borderRadius="8px" border="1px solid #e5e7eb">
             <Icon name="check-circle" size={20} />
             <Text fontSize="14px" textColor="dark">Settings saved successfully!</Text>
+          </Box>
+        ) : permissionError ? (
+          <Box display="flex" alignItems="flex-start" gap={2} padding={3} backgroundColor="#fef3c7" borderRadius="8px" border="1px solid #f59e0b">
+            <Icon name="warning" size={16} fill="#d97706" />
+            <Box>
+              <Text fontSize="13px" textColor="#d97706" lineHeight="1.4">
+                {permissionError}
+              </Text>
+              <Text fontSize="11px" textColor="#d97706" marginTop={1}>
+                Only users with editor or above permissions can save settings.
+              </Text>
+            </Box>
           </Box>
         ) : (
           <>

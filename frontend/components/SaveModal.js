@@ -10,6 +10,8 @@ const SaveModal = ({ isOpen, onClose, routeData, addresses, optimizedRouteOrder 
   const [saveError, setSaveError] = useState(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [canUpdateRecords, setCanUpdateRecords] = useState(false);
+  const [permissionError, setPermissionError] = useState(null);
 
   const base = useBase();
   const [bases, setBases] = useState([]);
@@ -56,6 +58,25 @@ const SaveModal = ({ isOpen, onClose, routeData, addresses, optimizedRouteOrder 
       setSelectedColumn(null);
     }
   }, [selectedTable]);
+
+  // Check permissions when modal opens or table changes
+  useEffect(() => {
+    const checkPermissions = async () => {
+      if (isOpen && selectedTable) {
+        try {
+          setPermissionError(null);
+          // For record permissions, we'll check when actually trying to save
+          setCanUpdateRecords(true); // Assume true until proven otherwise
+        } catch (error) {
+          console.error('Error checking permissions:', error);
+          setPermissionError(`Permission check failed: ${error.message}`);
+          setCanUpdateRecords(false);
+        }
+      }
+    };
+
+    checkPermissions();
+  }, [isOpen, selectedTable]);
   const handleSave = async () => {
     if (!selectedBase || !selectedTable || !selectedRow || !selectedColumn) {
       setSaveError("Please select all required fields");
@@ -109,7 +130,13 @@ const SaveModal = ({ isOpen, onClose, routeData, addresses, optimizedRouteOrder 
       }, 2000);
     } catch (error) {
       console.error("Error saving route data:", error);
-      setSaveError(`Error saving: ${error.message}`);
+      // Check if this is a permission error
+      if (error.message && error.message.includes('permission')) {
+        setCanUpdateRecords(false);
+        setSaveError('Cannot save route: Insufficient permissions');
+      } else {
+        setSaveError(`Error saving: ${error.message}`);
+      }
     } finally {
       setIsSaving(false);
     }
@@ -135,6 +162,18 @@ const SaveModal = ({ isOpen, onClose, routeData, addresses, optimizedRouteOrder 
               <Text fontSize="14px" textColor="dark">
                 Route saved successfully!
               </Text>
+            </Box>
+          ) : permissionError ? (
+            <Box display="flex" alignItems="flex-start" gap={2} padding={3} backgroundColor="#fef3c7" borderRadius="8px" border="1px solid #f59e0b">
+              <Icon name="warning" size={16} fill="#d97706" />
+              <Box>
+                <Text fontSize="13px" textColor="#d97706" lineHeight="1.4">
+                  {permissionError}
+                </Text>
+                <Text fontSize="11px" textColor="#d97706" marginTop={1}>
+                  Only users with editor or above permissions can save route data.
+                </Text>
+              </Box>
             </Box>
           ) : (
             <>

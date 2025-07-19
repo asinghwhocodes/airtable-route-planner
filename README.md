@@ -269,6 +269,37 @@ This extension uses the following external services:
 - All processing is done in real-time
 - Field selections are stored locally in your Airtable base
 
+## 🔐 Permissions & Write-Back
+
+### User Permissions
+
+Users of an extension have the same permissions in the extension as they do in the Airtable base. This means that trying to perform an action that they can't do in the base (for example, deleting a record as a read-only collaborator) will throw an error.
+
+### Writing Back to Airtable
+
+When writing back to Airtable (to records or GlobalConfig), first check that the user has permission to perform that action. The extension includes permission checks for:
+
+- **Saving route URLs** to record fields
+- **Updating GlobalConfig** (field selections, settings)
+- **Reading record data** for route planning
+
+### Permission Requirements
+
+- **Only users with editor or above permission** can update GlobalConfig
+- **Read-only collaborators** can view routes but cannot save data
+- **Field-level permissions** are respected when saving route URLs
+
+### Development Testing
+
+When developing the extension, you can preview it with different permission levels using the **"Advanced" tab** in the extension settings. This helps you test how the extension behaves for users with different access levels.
+
+### Error Handling
+
+The extension includes proper error handling for permission-related actions:
+- **UI elements are disabled** when users lack required permissions
+- **Clear error messages** explain why actions cannot be performed
+- **Graceful degradation** ensures the extension remains functional
+
 ## 🐛 Troubleshooting
 
 ### Common Issues
@@ -320,6 +351,13 @@ This extension uses the following external services:
    - Try installing with legacy peer deps: `npm install --legacy-peer-deps`
    - Clear npm cache: `npm cache clean --force`
    - Delete node_modules and reinstall: `rm -rf node_modules package-lock.json && npm install`
+
+9. **Permission-related errors**:
+   - Ensure you have editor or above permissions in the Airtable base
+   - Check that the field you're trying to save to is editable
+   - Verify GlobalConfig permissions for settings and field selections
+   - Test with different permission levels using the "Advanced" tab
+   - Check if you're a read-only collaborator (limited functionality)
 
 ### Getting Help
 

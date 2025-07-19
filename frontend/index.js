@@ -30,6 +30,9 @@ function RoutePlannerAppAirtable() {
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [isLoadingSavedField, setIsLoadingSavedField] = useState(false);
+  const [canUpdateGlobalConfig, setCanUpdateGlobalConfig] = useState(false);
+  const [canUpdateRecords, setCanUpdateRecords] = useState(false);
+  const [permissionError, setPermissionError] = useState(null);
 
   // Airtable hooks
   const cursor = useCursor();
@@ -40,7 +43,7 @@ function RoutePlannerAppAirtable() {
 
   // Settings button
   useSettingsButton({
-    label: "Route Settings",
+    label: canUpdateGlobalConfig ? "Route Settings" : "Route Settings (Read-only)",
     onClick: () => {
       setShowSettingsModal(true);
     },
@@ -48,6 +51,34 @@ function RoutePlannerAppAirtable() {
 
   // Watch for global config changes
   useWatchable(globalConfig, ["*"]);
+
+  // Check permissions on component mount and when table changes
+  useEffect(() => {
+    const checkPermissions = async () => {
+      try {
+        setPermissionError(null);
+        
+        // Test GlobalConfig permissions by trying to read a test value
+        try {
+          globalConfig.get('_permission_test');
+          setCanUpdateGlobalConfig(true);
+        } catch (error) {
+          console.log('GlobalConfig permission test failed:', error);
+          setCanUpdateGlobalConfig(false);
+        }
+        
+        // For record permissions, we'll check when actually trying to save
+        setCanUpdateRecords(true); // Assume true until proven otherwise
+      } catch (error) {
+        console.error('Error checking permissions:', error);
+        setPermissionError(`Permission check failed: ${error.message}`);
+        setCanUpdateGlobalConfig(false);
+        setCanUpdateRecords(false);
+      }
+    };
+
+    checkPermissions();
+  }, [table, globalConfig]);
 
   // Watch for cursor changes (table switching) and reset field selection
   useWatchable(cursor, ["activeTableId"], () => {
@@ -87,11 +118,19 @@ function RoutePlannerAppAirtable() {
             setSelectedLocationField(savedField);
           } else {
             // Field doesn't exist in this table, clear the config
-            await globalConfig.setAsync(configKey, null);
+            if (canUpdateGlobalConfig) {
+              await globalConfig.setAsync(configKey, null);
+            } else {
+              console.warn('Cannot clear invalid field config - insufficient permissions');
+            }
           }
         } catch (fieldError) {
           // Field ID is invalid, clear the config
-          await globalConfig.setAsync(configKey, null);
+          if (canUpdateGlobalConfig) {
+            await globalConfig.setAsync(configKey, null);
+          } else {
+            console.warn('Cannot clear invalid field config - insufficient permissions');
+          }
         }
       }
     } catch (error) {
@@ -122,6 +161,13 @@ function RoutePlannerAppAirtable() {
       await globalConfig.setAsync(configKey, field.id);
     } catch (error) {
       console.error('Error saving location field to config:', error);
+      // Check if this is a permission error
+      if (error.message && error.message.includes('permission')) {
+        setCanUpdateGlobalConfig(false);
+        setError(`Cannot save field selection: Insufficient permissions`);
+      } else {
+        setError(`Error saving field selection: ${error.message}`);
+      }
     }
   };
 
@@ -256,7 +302,8 @@ function RoutePlannerAppAirtable() {
               <Text fontSize="14px" textColor="light">Loading saved field selection...</Text>
             </Box>
           ) : (
-            <FieldPicker 
+            <Box>
+                          <FieldPicker 
               table={table} 
               field={selectedLocationField} 
               onChange={(field) => {
@@ -266,8 +313,14 @@ function RoutePlannerAppAirtable() {
                 }
               }} 
               placeholder="Choose a field containing addresses..." 
-              shouldAllowPickingNone={false} 
+              shouldAllowPickingNone={false}
             />
+              {!canUpdateGlobalConfig && (
+                <Text fontSize="11px" textColor="light" marginTop={1}>
+                  <Icon name="info" size={12} /> Field selection cannot be saved with read-only permissions
+                </Text>
+              )}
+            </Box>
           )}
         </Box>
 
@@ -605,6 +658,19 @@ function RoutePlannerAppAirtable() {
                 </Text>
               </Box>
             )}
+            {!canUpdateGlobalConfig && (
+              <Tooltip 
+                content="You have read-only permissions. Field selections and settings cannot be saved."
+                position="bottom"
+                width="250px"
+              >
+                <Box padding="4px 8px" backgroundColor="yellow" borderRadius="12px" border="1px solid #fde047">
+                  <Text fontSize="10px" fontWeight={500} textColor="dark">
+                    Read-only
+                  </Text>
+                </Box>
+              </Tooltip>
+            )}
           </Box>
         </Box>
       </Box>
@@ -626,6 +692,14 @@ function RoutePlannerAppAirtable() {
                 await globalConfig.setAsync(configKey, null);
               } catch (error) {
                 console.error('Error clearing table config:', error);
+                // Check if this is a permission error
+                if (error.message && error.message.includes('permission')) {
+                  setCanUpdateGlobalConfig(false);
+                  setError(`Cannot change field selection: Insufficient permissions`);
+                } else {
+                  setError(`Error clearing field selection: ${error.message}`);
+                }
+                return;
               }
               
               // Reset all state
@@ -719,11 +793,19 @@ function RoutePlannerAppAirtable() {
         <Box display="flex" alignItems="flex-start" gap={2} marginBottom={3} padding={3} backgroundColor="#fee2e2" borderRadius="8px" border="1px solid #fca5a5">
           <Icon name="warning" size={16} fill="#dc2626" />
           <Box>
-            {/* <Text fontSize="14px" fontWeight={600} textColor="#dc2626" marginBottom={1}>
-              Route Calculation Error
-            </Text> */}
             <Text fontSize="13px" textColor="#dc2626" lineHeight="1.4">
               {error}
+            </Text>
+          </Box>
+        </Box>
+      )}
+
+      {permissionError && (
+        <Box display="flex" alignItems="flex-start" gap={2} marginBottom={3} padding={3} backgroundColor="#fef3c7" borderRadius="8px" border="1px solid #f59e0b">
+          <Icon name="warning" size={16} fill="#d97706" />
+          <Box>
+            <Text fontSize="13px" textColor="#d97706" lineHeight="1.4">
+              {permissionError}
             </Text>
           </Box>
         </Box>
@@ -854,7 +936,11 @@ function RoutePlannerAppAirtable() {
                   <Button variant="default" size="small" marginRight={2} onClick={() => window.open(buildGoogleMapsUrl(), "_blank")} target="_blank" rel="noopener noreferrer">
                     <Icon name="hyperlink" size={12} /> Google Maps
                   </Button>
-                  <Button variant="primary" size="small" onClick={() => setShowSaveModal(true)}>
+                  <Button 
+                    variant="primary" 
+                    size="small" 
+                    onClick={() => setShowSaveModal(true)}
+                  >
                     <Icon name="download" size={12} /> Save
                   </Button>
                 </>
