@@ -1,0 +1,45 @@
+{
+    "name": "airtable-route-planner",
+    "version": "1.0.0",
+    "description": "Plan optimal routes between multiple addresses in your Airtable data with interactive maps and route optimization",
+    "keywords": [
+        "airtable",
+        "route",
+        "planner",
+        "maps",
+        "navigation",
+        "optimization",
+        "geocoding"
+    ],
+    "author": {
+        "name": "aSinghWhoCodes",
+        "email": "info@asinghwhocodes.com"
+    },
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/asinghwhocodes/airtable-route-planner.git"
+    },
+    "scripts": {
+        "lint": "ESLINT_USE_FLAT_CONFIG=false eslint frontend",
+        "build": "block run build",
+        "dev": "block run dev",
+        "deploy": "block run deploy",
+        "test": "node test.js"
+    },
+    "dependencies": {
+        "@airtable/blocks": "1.18.2",
+        "leaflet": "^1.9.4",
+        "polyline": "^0.2.0",
+        "react": "^16.14.0",
+        "react-dom": "^16.14.0"
+    },
+    "devDependencies": {
+        "eslint": "^9.5.0",
+        "eslint-plugin-react": "^7.34.2",
+        "eslint-plugin-react-hooks": "^4.6.2"
+    },
+    "engines": {
+        "node": ">=14.0.0"
+    }
+}

@@ -1,0 +1,31 @@
+{
+    "version": "1.0",
+    "frontendEntry": "./frontend/index.js",
+    "name": "Route Planner",
+    "description": "Plan optimal routes between multiple addresses in your Airtable data",
+    "documentationUrl": "https://github.com/asinghwhocodes/airtable-route-planner",
+    "supportUrl": "https://github.com/asinghwhocodes/airtable-route-planner/issues",
+    "icon": {
+        "url": "./icon.svg"
+    },
+    "interfaceConfig": {
+        "features": {
+            "airtableBlocks": {
+                "supportedProduct": "base",
+                "supportedScopes": ["base"]
+            }
+        }
+    },
+    "permissions": {
+        "data": {
+            "schema": [
+                {
+                    "table": {
+                        "name": "Any table with location data",
+                        "description": "Tables containing address or location information"
+                    }
+                }
+            ]
+        }
+    }
+}
