@@ -92,7 +92,7 @@ Add the remote configuration using the IDs you just received:
 Start the development server:
 
 ```bash
-block run --remote development
+block run
 ```
 
 The CLI will provide you with a URL (usually `https://localhost:9000` and copied automatically). Keep this terminal window open.
