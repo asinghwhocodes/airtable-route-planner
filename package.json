@@ -1,6 +1,6 @@
 {
     "name": "airtable-route-planner",
-    "version": "1.0.0",
+    "version": "0.1.0",
     "description": "Plan optimal routes between multiple addresses in your Airtable data with interactive maps and route optimization",
     "keywords": [
         "airtable",
