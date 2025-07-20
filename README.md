@@ -381,7 +381,7 @@ MIT License - see [LICENSE.md](LICENSE.md) for details
 
 ## 📝 Changelog
 
-### v1.0.0
+### v0.1.0
 - Initial release
 - Basic route planning functionality
 - Interactive map display
@@ -405,4 +405,3 @@ MIT License - see [LICENSE.md](LICENSE.md) for details
 ---
 
 **Happy route planning!  ✨** 
-- [ ] Support for more transport modes
