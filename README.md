@@ -228,15 +228,6 @@ After making changes to your code:
    ```
 3. **Refresh the page** to see your changes
 
-## ⚙️ Configuration
-
-Access settings via the settings button in the extension:
-
-- **Default Route Type**: Choose driving, cycling, or walking
-- **Maximum Addresses**: Set limit for route planning (5-20 addresses)
-- **Route Optimization**: Enable/disable automatic route optimization
-- **Auto Geocoding**: Enable/disable automatic address geocoding
-
 ## 🔧 Advanced Features
 
 ### Table Filtering
