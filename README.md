@@ -12,11 +12,9 @@ If you find this extension helpful, consider buying me a coffee to support the d
 
 - **Interactive Map Display**: Visualize your route with an interactive map powered by OpenStreetMap
 - **Route Optimization**: Automatically find the most efficient route order using TSP algorithms
-- **Multiple Transport Modes**: Support for driving, cycling, and walking routes
 - **Address Geocoding**: Automatic conversion of addresses to coordinates
 - **Google Maps Integration**: Open optimized routes directly in Google Maps
-- **Save to Airtable**: Save route URLs back to your Airtable records
-- **Configurable Settings**: Customize default route types, address limits, and optimization preferences
+- **Save to Airtable**: Save google route URLs back to your Airtable records
 - **Table Filtering**: Respects Airtable table filters to show only relevant records
 - **Per-Table Configuration**: Saves field selections per table for easy switching
 
