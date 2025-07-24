@@ -178,22 +178,6 @@ airtable-route-planner/
 3. **Test your changes** in the Airtable extension
 4. **Repeat** until satisfied
 
-### Building for Production
-
-When you're ready to deploy:
-
-1. **Build the extension**:
-   ```bash
-   block build
-   ```
-
-2. **Deploy to Airtable**:
-   ```bash
-   block deploy
-   ```
-
-This will make your extension available to install in any Airtable base.
-
 ## 🚀 Releasing Your Extension
 
 While you're working on code, you don't want to show it off until it's ready. But at some point, it will be ready for the rest of your base collaborators to see, and then it's time to release it!

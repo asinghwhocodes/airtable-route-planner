@@ -1,5 +1,5 @@
 {
-    "version": "0.1.0",
+    "version": "1.0",
     "frontendEntry": "./frontend/index.js",
     "name": "Route Planner",
     "description": "Plan optimal routes between multiple addresses in your Airtable data",
